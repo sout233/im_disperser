@@ -176,17 +176,21 @@ impl Plugin for DisperserPlugin {
             }
         }
 
-        if self.params.editor_state.is_open() {
-            let current_peak_meter = self.peak_meter.load(std::sync::atomic::Ordering::Relaxed);
-            let new_peak_meter = if amplitude > current_peak_meter {
-                amplitude
-            } else {
-                current_peak_meter * self.peak_meter_decay_weight
-                    + amplitude * (1.0 - self.peak_meter_decay_weight)
-            };
+        for channel_samples in buffer.iter_samples() {
+            if self.params.editor_state.is_open() {
+                let num_samples = channel_samples.len();
+                amplitude = (amplitude / num_samples as f32).abs();
+                let current_peak_meter = self.peak_meter.load(std::sync::atomic::Ordering::Relaxed);
+                let new_peak_meter = if amplitude > current_peak_meter {
+                    amplitude
+                } else {
+                    current_peak_meter * self.peak_meter_decay_weight
+                        + amplitude * (1.0 - self.peak_meter_decay_weight)
+                };
 
-            self.peak_meter
-                .store(new_peak_meter, std::sync::atomic::Ordering::Relaxed)
+                self.peak_meter
+                    .store(new_peak_meter, std::sync::atomic::Ordering::Relaxed)
+            }
         }
 
         ProcessStatus::Normal

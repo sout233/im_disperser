@@ -1,7 +1,7 @@
 use nih_plug::prelude::Param;
-use vizia::vg::Point;
 use vizia_plug::vizia::prelude::*;
 use vizia_plug::vizia::vg;
+use vizia_plug::vizia::vg::Point;
 
 use vizia_plug::widgets::param_base::ParamWidgetBase;
 use vizia_plug::widgets::util::ModifiersExt;

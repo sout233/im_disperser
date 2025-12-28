@@ -1,11 +1,15 @@
 use atomic_float::AtomicF32;
 use nih_plug::prelude::Editor;
+use nih_plug::util;
 use std::sync::Arc;
+use std::sync::atomic::Ordering;
 use vizia_plug::vizia::prelude::*;
+use vizia_plug::widgets::PeakMeter;
 use vizia_plug::{ViziaState, ViziaTheming, create_vizia_editor};
 
 use crate::DisperserParams;
 use crate::widgets::params_knob::ParamKnob;
+use crate::widgets::waveform_view::WaveformView;
 
 pub const NOTO_SANS: &str = "Noto Sans";
 
@@ -50,10 +54,25 @@ pub(crate) fn create(
                     HStack::new(cx, |_| {}).width(Stretch(1.0));
 
                     Label::new(cx, "PROCESSING").class("top-bar-text");
+
+                    PeakMeter::new(
+                        cx,
+                        Data::peak_meter
+                            .map(|peak_meter| util::gain_to_db(peak_meter.load(Ordering::Relaxed))),
+                        Some(Duration::from_millis(600)),
+                    );
                 })
                 .padding(Pixels(4.0))
                 .height(Pixels(20.0));
-                VStack::new(cx, |_cx| {}).height(Stretch(1.0));
+                VStack::new(cx, |cx| {
+                    WaveformView::new(
+                        cx,
+                        Data::peak_meter.map(|peak_meter| peak_meter.load(Ordering::Relaxed)),
+                        512,
+                    )
+                    .class("waveform-view");
+                })
+                .height(Stretch(1.0));
             })
             .class("spectrum-panel");
 

@@ -16,5 +16,5 @@ i_am_dsp = { path = "../i_am_dsp" }
 nih_plug = { git = "https://github.com/robbert-vdh/nih-plug", features = ["standalone"] }
 vizia_plug = { git = "https://github.com/vizia/vizia-plug", rev = "07ab0ec4" }
 atomic_float = "0.1"
-vizia = { git = "https://github.com/vizia/vizia", rev = "c0ada337", default-features = false, features = ["baseview", "clipboard", "x11"] }
+# vizia = { git = "https://github.com/vizia/vizia", rev = "c0ada337", default-features = false, features = ["baseview", "clipboard", "x11"] }
 colors-transform = "0.2.11"

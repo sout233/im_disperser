@@ -61,3 +61,7 @@
     transition: background-color 233ms;
     transition: color 233ms;
 }
+
+.waveform-view {
+    color: palegreen;
+}
