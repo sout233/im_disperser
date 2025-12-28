@@ -29,12 +29,18 @@ impl Model for Data {
             MainViewEvent::ToggleInfoPanel => {
                 self.is_show_info_panel = !self.is_show_info_panel;
             }
+            MainViewEvent::OpenUrl(url) => {
+                if webbrowser::open(&url).is_err() {
+                    println!("Failed to open URL: {}", url);
+                }
+            }
         });
     }
 }
 
 pub enum MainViewEvent {
     ToggleInfoPanel,
+    OpenUrl(String),
 }
 
 pub(crate) fn default_state() -> Arc<ViziaState> {
@@ -173,8 +179,19 @@ pub(crate) fn create(
                         HStack::new(cx, |cx| {
                             VStack::new(cx, |cx| {
                                 Button::new(cx, |cx| Label::new(cx, "i_am_dsp_repo"))
+                                    .on_press(|cx| {
+                                        cx.emit(MainViewEvent::OpenUrl(
+                                            "https://github.com/IAMMRGODIE/i_am_dsp".to_owned(),
+                                        ));
+                                    })
                                     .class("link-btn");
-                                Button::new(cx, |cx| Label::new(cx, "this_repo")).class("link-btn");
+                                Button::new(cx, |cx| Label::new(cx, "this_repo"))
+                                    .on_press(|cx| {
+                                        cx.emit(MainViewEvent::OpenUrl(
+                                            "https://github.com/sout233/godieperser".to_owned(),
+                                        ));
+                                    })
+                                    .class("link-btn");
                             });
                             VStack::new(cx, |cx| {
                                 Label::new(cx, "DSP core [i_am_dsp] by IAMMRGODIE").class("p");
