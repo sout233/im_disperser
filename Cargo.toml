@@ -5,7 +5,7 @@ edition = "2024"
 license = "GPL-3.0"
 
 [workspace]
-members = ["xtask"]
+members = ["im_installer","xtask"]
 
 [lib]
 # The `lib` artifact is needed for the standalone target

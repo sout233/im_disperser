@@ -1,0 +1,132 @@
+.main-stack {
+    background-color: #f2fbf4;
+    padding: 12px;
+}
+
+.title {
+    font-size: 36px;
+    font-weight: bold;
+    font-family: "JetBrains Mono Bold";
+    color: white;
+    background-color: black;
+}
+
+.subtitle {
+    font-size: 16px;
+    font-weight: bold;
+    font-family: "JetBrains Mono Bold";
+    padding-bottom: 12px;
+}
+
+.opt-panel {
+    height: auto;
+    max-width: 400px;
+    min-width: 300px;
+    gap: 8px;
+    padding: 12px;
+    corner-radius: 8px;
+    shadow:
+        4px 4px 24px 4px rgb(80 123 80 / 20%),
+        -4px -4px 24px 4px white;
+    transition: shadow 233ms;
+}
+
+.checkbox-stack {
+    height: 25px;
+    gap: 8px;
+}
+
+.p {
+    font-size: 16px;
+    opacity: 80%;
+}
+
+checkbox {
+    corner-radius: 2px;
+    border-width: 1px;
+    border-color: #d2d2d2;
+    background-color: #fdfdfd;
+    transition: background-color 100ms;
+    transition: border-color 100ms;
+}
+
+checkbox:hover {
+    border-color: #d2d2d2;
+    background-color: #f9f9f9;
+    transition: background-color 100ms;
+    transition: border-color 100ms;
+}
+
+checkbox:active {
+    border-color: #d2d2d2;
+    background-color: #eaeaea;
+    transition: background-color 100ms;
+    transition: border-color 100ms;
+}
+
+checkbox:disabled {
+    border-color: #c4c4c4;
+    background-color: #fdfdfd00;
+    transition: background-color 100ms;
+    transition: border-color 100ms;
+}
+
+checkbox:checked {
+    background-color: rgb(50 155 80 / 60%);
+    border-color: rgb(50 155 80 / 60%);
+    shadow: 0px 0px 8px 1px rgb(50 155 80 / 60%);
+    transition: shadow 233ms;
+    transition: background-color 100ms;
+    transition: border-color 100ms;
+}
+
+checkbox:checked svg {
+    fill: #fff;
+}
+
+checkbox:checked:hover {
+    background-color: rgb(50 155 80 / 30%);
+    border-color: rgb(50 155 80 / 30%);
+    shadow: 0px 0px 0px 0px rgb(50 155 80 / 60%);
+    transition: shadow 233ms;
+    transition: background-color 100ms;
+    transition: border-color 100ms;
+}
+
+checkbox:checked:active {
+    background-color: rgb(50 155 80 / 10%);
+    border-color: rgb(50 155 80 / 10%);
+    transition: background-color 100ms;
+    transition: border-color 100ms;
+}
+
+checkbox:checked:disabled {
+    background-color: #c4c4c4;
+    border-color: #c4c4c4;
+    transition: background-color 100ms;
+    transition: border-color 100ms;
+}
+
+.next-btn {
+    shadow:
+        4px 4px 24px 4px rgb(80 123 80 / 20%),
+        -4px -4px 24px 4px white;
+    corner-radius: 24px;
+    padding: 16px;
+    height: 36px;
+    background-color: #f5fef8;
+    border-color: #d3e3d8;
+    transition: background-color 100ms;
+    transition: border-color 100ms;
+}
+
+.next-btn:hover {
+    shadow: 0px 0px 48px 1px rgb(0 255 80 / 20%);
+    background-color: #ebf6ef;
+    transition: shadow 233ms;
+}
+
+.next-btn:active {
+    shadow: 0px 0px 0px 0px rgb(0 255 80 / 20%);
+    background-color: #deede3;
+}
