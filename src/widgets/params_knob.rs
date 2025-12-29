@@ -124,14 +124,14 @@ impl View for ParamKnob {
             WindowEvent::MouseDown(MouseButton::Left)
             | WindowEvent::MouseTripleClick(MouseButton::Left) => {
                 if cx.modifiers().alt() {
-                    self.text_input_active = true;
-                    cx.set_active(true);
-                    meta.consume();
-                } else if cx.modifiers().command() {
                     self.param_base.begin_set_parameter(cx);
                     self.param_base
                         .set_normalized_value(cx, self.param_base.default_normalized_value());
                     self.param_base.end_set_parameter(cx);
+                    meta.consume();
+                } else if cx.modifiers().command() {
+                    self.text_input_active = true;
+                    cx.set_active(true);
                     meta.consume();
                 } else if !self.text_input_active {
                     cx.capture();
