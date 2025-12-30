@@ -7,7 +7,9 @@ impl DonePage {
     pub fn new(cx: &mut Context) -> Handle<'_, Self> {
         DonePage {}.build(cx, |cx| {
             VStack::new(cx, |cx| {
-                Label::new(cx, "安装完成").class("p");
+                Label::new(cx, Localized::new("install-finish"))
+                    .class("p")
+                    .font_weight(FontWeightKeyword::Bold);
             })
             .class("opt-panel");
         })

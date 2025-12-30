@@ -1,0 +1,11 @@
+next = NEXT
+prev = PREV
+done = DONE
+subtitle = An open-source disperser plugin
+install = INSTALL
+choose-format = Choose format to install
+choose-path = Choose path
+choose-path-info = Note: Some DAWs do not scan paths outside the default one, so you usually don't need to change the installation path.
+confirm-install = Confirm install?
+install-finish = INSTALL FINISHED
+installing = Installing...

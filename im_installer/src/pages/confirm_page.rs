@@ -17,7 +17,7 @@ impl ConfirmPage {
     ) -> Handle<'_, Self> {
         ConfirmPage {}.build(cx, |cx| {
             VStack::new(cx, |cx| {
-                Label::new(cx, "确认安装").class("p");
+                Label::new(cx, Localized::new("confirm-install")).class("p");
 
                 Binding::new(cx, is_install_vst3, move |cx, is| {
                     if is.get(cx) {

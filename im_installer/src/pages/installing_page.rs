@@ -4,7 +4,7 @@ use crate::{AppEvent, err_msgbox, utils::msgbox};
 
 #[derive(Lens)]
 pub(crate) struct InstallingPage {
-    subtitle: String,
+    subtitle: Localized,
     show_install_btn: bool,
 }
 
@@ -16,15 +16,15 @@ pub(crate) enum InstallingPageEvent {
 impl InstallingPage {
     pub fn new(cx: &mut Context) -> Handle<'_, Self> {
         InstallingPage {
-            subtitle: "确认安装？".to_string(),
+            subtitle: Localized::new("confirm-install"),
             show_install_btn: true,
         }
         .build(cx, |cx| {
             VStack::new(cx, |cx| {
-                Label::new(cx, "安装").class("p");
+                Label::new(cx, Localized::new("install")).class("p");
                 Label::new(cx, Self::subtitle).class("p-xs");
 
-                Button::new(cx, |cx| Label::new(cx, "安装"))
+                Button::new(cx, |cx| Label::new(cx, Localized::new("install")))
                     .on_press(|cx| {
                         cx.emit(InstallingPageEvent::Install);
                     })
@@ -46,11 +46,11 @@ impl View for InstallingPage {
         event.map(|app_event, meta| match app_event {
             InstallingPageEvent::Install => {
                 self.show_install_btn = false;
-                self.subtitle = "正在安装...".to_string();
+                self.subtitle = Localized::new("installing");
             }
             InstallingPageEvent::Finish => {
                 self.show_install_btn = false;
-                self.subtitle = "安装完成".to_string();
+                self.subtitle = Localized::new("install-finish");
             }
         });
     }

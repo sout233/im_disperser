@@ -12,12 +12,8 @@ impl SelectPathPage {
     ) -> Handle<'_, Self> {
         SelectPathPage {}.build(cx, |cx| {
             VStack::new(cx, |cx| {
-                Label::new(cx, "设定安装路径").class("p");
-                Label::new(
-                    cx,
-                    "注意：部分DAW不会扫描默认路径外的插件，一般情况下无需修改安装路径",
-                )
-                .class("p-xs");
+                Label::new(cx, Localized::new("choose-path")).class("p");
+                Label::new(cx, Localized::new("choose-path-info")).class("p-xs");
 
                 HStack::new(cx, |cx| {
                     Label::new(cx, "VST3");

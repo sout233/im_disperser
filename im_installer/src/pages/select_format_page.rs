@@ -13,7 +13,7 @@ impl SelectFormatPage {
     ) -> Handle<'_, Self> {
         SelectFormatPage {}.build(cx, |cx| {
             VStack::new(cx, |cx| {
-                Label::new(cx, "选择要安装的格式：").class("p");
+                Label::new(cx, Localized::new("choose-format")).class("p");
 
                 HStack::new(cx, |cx| {
                     Checkbox::new(cx, select_vst3)

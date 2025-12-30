@@ -2,17 +2,22 @@ use std::{
     fs::{self, write},
     panic,
     path::Path,
-    process, thread,
+    process,
+    str::FromStr,
+    thread,
 };
 
 use vizia::{prelude::*, vg::Pixel};
 
-use crate::pages::{
-    confirm_page::ConfirmPage,
-    done_page::DonePage,
-    installing_page::{InstallingPage, InstallingPageEvent},
-    select_format_page::SelectFormatPage,
-    select_path_page::SelectPathPage,
+use crate::{
+    pages::{
+        confirm_page::ConfirmPage,
+        done_page::DonePage,
+        installing_page::{InstallingPage, InstallingPageEvent},
+        select_format_page::SelectFormatPage,
+        select_path_page::SelectPathPage,
+    },
+    utils::localize::{Language, ToLocalizeKey},
 };
 
 mod pages;
@@ -28,7 +33,8 @@ pub struct AppData {
     disable_next_btn: bool,
     vst3_path: String,
     clap_path: String,
-    next_btn_text: String,
+    next_btn_text: Localized,
+    lang: Language,
 }
 
 pub enum AppEvent {
@@ -40,6 +46,7 @@ pub enum AppEvent {
     UpdateClapPath(String),
     StartInstallation,
     UpdateButtons,
+    UpdateLanguage(Language),
 }
 
 #[derive(Data, PartialEq, Clone)]
@@ -164,14 +171,22 @@ impl Model for AppData {
                 self.show_prev_btn = prev_btn_enabled;
 
                 if self.current_page == TabPage::Confirm {
-                    self.next_btn_text = "安装".to_string();
+                    self.next_btn_text = Localized::new("install");
                 }
                else if self.current_page == TabPage::Done {
-                    self.next_btn_text = "完成".to_string();
+                    self.next_btn_text = Localized::new("done");
                 }
                 else {
-                    self.next_btn_text = "下一步".to_string();
+                    self.next_btn_text = Localized::new("next");
                 }
+            },
+            AppEvent::UpdateLanguage(language) => {
+                self.lang = language.clone();
+                let id = LanguageIdentifier::from_str(language.to_localize_key().as_str()).unwrap();
+                cx.emit(EnvironmentEvent::SetLocale(id.clone()));
+                self.next_btn_text = Localized::new("done");
+                cx.emit(AppEvent::UpdateButtons);
+                println!("set language to {}", id.to_string());
             },
         });
     }
@@ -184,6 +199,16 @@ fn main() -> Result<(), ApplicationError> {
 
         cx.add_font_mem(include_bytes!("../../assets/JetBrainsMono-Bold.ttf"));
 
+        cx.add_translation(
+            langid!("en-US"),
+            include_str!("resources/en-US/main.flt").to_owned(),
+        );
+
+        cx.add_translation(
+            langid!("zh-CN"),
+            include_str!("resources/zh-CN/main.flt").to_owned(),
+        );
+
         AppData {
             install_vst3: false,
             install_clap: false,
@@ -193,9 +218,12 @@ fn main() -> Result<(), ApplicationError> {
             disable_next_btn: true,
             vst3_path: String::from(r#"C:\Program Files\Common Files\VST3"#),
             clap_path: String::from(r#"C:\Program Files\Common Files\CLAP"#),
-            next_btn_text: String::from("下一步"),
+            next_btn_text: Localized::new("next"),
+            lang: Language::English,
         }
         .build(cx);
+
+        cx.emit(AppEvent::UpdateLanguage(Language::English));
 
         let is_elevated = ok_or_msgbox!(
             windows_elevate::check_elevated(),
@@ -228,7 +256,7 @@ fn main() -> Result<(), ApplicationError> {
 
             VStack::new(cx, |cx| {
                 Label::new(cx, "IM_DISPERSER").class("title");
-                Label::new(cx, "一个一个一个 Disperser 插件").class("subtitle");
+                Label::new(cx, Localized::new("subtitle")).class("subtitle");
 
                 Binding::new(cx, AppData::current_page, |cx, current_page| {
                     match current_page.get(cx) {
@@ -258,32 +286,54 @@ fn main() -> Result<(), ApplicationError> {
             })
             .width(Stretch(1.0));
 
-            HStack::new(cx, |cx| {
-                Binding::new(cx, AppData::show_prev_btn, |cx, show| {
-                    if show.get(cx) {
-                        Button::new(cx, |cx| Label::new(cx, "上一步"))
-                            .on_press(|ex| {
-                                ex.emit(AppEvent::PrevPage);
+            VStack::new(cx, |cx| {
+                Binding::new(cx, AppData::lang, |cx, lang| {
+                    let lang = lang.get(cx);
+                    HStack::new(cx, |cx| {
+                        Button::new(cx, |cx| Label::new(cx, lang.to_string()))
+                            .on_press(move |ex| {
+                                if lang == Language::SimplifiedChinese {
+                                    ex.emit(AppEvent::UpdateLanguage(Language::English));
+                                } else {
+                                    ex.emit(AppEvent::UpdateLanguage(Language::SimplifiedChinese));
+                                }
                             })
-                            .visibility(AppData::show_prev_btn)
-                            .class("next-btn");
-                    }
+                            .class("btn");
+                    })
+                    .alignment(Alignment::TopRight)
+                    .width(Stretch(1.0))
+                    .height(Stretch(1.0));
                 });
 
-                Binding::new(cx, AppData::show_next_btn, |cx, show| {
-                    if show.get(cx) {
-                        Button::new(cx, |cx| Label::new(cx, AppData::next_btn_text))
-                            .on_press(|ex| {
-                                ex.emit(AppEvent::NextPage);
-                            })
-                            .disabled(AppData::disable_next_btn)
-                            .class("next-btn");
-                    }
-                });
+                HStack::new(cx, |cx| {
+                    Binding::new(cx, AppData::show_prev_btn, |cx, show| {
+                        if show.get(cx) {
+                            Button::new(cx, |cx| Label::new(cx, Localized::new("prev")))
+                                .on_press(|ex| {
+                                    ex.emit(AppEvent::PrevPage);
+                                })
+                                .visibility(AppData::show_prev_btn)
+                                .class("next-btn");
+                        }
+                    });
+
+                    Binding::new(cx, AppData::show_next_btn, |cx, show| {
+                        if show.get(cx) {
+                            Button::new(cx, |cx| Label::new(cx, AppData::next_btn_text))
+                                .on_press(|ex| {
+                                    ex.emit(AppEvent::NextPage);
+                                })
+                                .disabled(AppData::disable_next_btn)
+                                .class("next-btn");
+                        }
+                    });
+                })
+                .gap(Pixels(4.0))
+                .alignment(Alignment::BottomRight)
+                .width(Stretch(1.0));
             })
-            .gap(Pixels(4.0))
-            .alignment(Alignment::BottomRight)
-            .width(Stretch(1.0));
+            .width(Stretch(1.0))
+            .height(Stretch(1.0));
         })
         .class("main-stack");
     })
