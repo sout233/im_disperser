@@ -61,9 +61,10 @@ impl Default for DisperserParams {
             frequency: FloatParam::new(
                 "Frequency",
                 1145.0,
-                FloatRange::Linear {
+                FloatRange::Skewed {
                     min: 20.0,
                     max: 20000.0,
+                    factor: FloatRange::skew_factor(-2.0),
                 },
             )
             .with_unit(" Hz"),
@@ -71,11 +72,13 @@ impl Default for DisperserParams {
             spread: FloatParam::new(
                 "Spread",
                 1145.0,
-                FloatRange::Linear {
+                FloatRange::Skewed {
                     min: 0.1,
                     max: 2000.0,
+                    factor: FloatRange::skew_factor(-2.0),
                 },
-            ),
+            )
+            .with_unit(" Hz"),
 
             amount: IntParam::new("Amount", 80, IntRange::Linear { min: 0, max: 100 }),
         }
