@@ -1,0 +1,46 @@
+/* Overrides for default VIZIA widgets */
+
+:root {
+  background-color: #fafafa;
+  color: #0a0a0a;
+  font-size: 15;
+  font-family: 'Noto Sans';
+  font-weight: 200;
+}
+
+/* * {
+  border: solid red 1px;
+} */
+
+scrollview > scroll_content {
+  /* Normally the scroll bar overlaps with the content, so we'll add a little offset to prevent that */
+  padding-right: 15px;
+}
+
+scrollview scrollbar {
+  background-color: #dadada;
+  corner-radius: 0px;
+  padding: 0px;
+}
+
+scrollview scrollbar.horizontal {
+  right: 10px;
+  height: 10px;
+}
+
+scrollview scrollbar.vertical {
+  width: 10px;
+}
+
+scrollview scrollbar .thumb {
+  background-color: #5d5d5d;
+  corner-radius: 0px;
+  min-width: 10px;
+  min-height: 10px;
+  transition: background-color 100ms;
+}
+
+scrollview scrollbar .thumb:hover {
+  background-color: #808080;
+  transition: background-color 100ms;
+}

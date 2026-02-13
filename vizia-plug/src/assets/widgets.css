@@ -1,0 +1,156 @@
+/* Default styling for the widgets included in vizia_plug */
+/* See ./theme.css for overrides for the default widgets */
+
+generic-ui {
+  padding: 10px;
+  gap: 5px;
+  /* Otherwise it doesn't interact correctly with scrollview */
+  height: auto;
+  layout-type: column;
+}
+
+scrollview > scroll_content > generic-ui {
+  padding: 5px;
+
+  /* Our scrollview styling will already add some padding here */
+  padding-right: 0px;
+}
+
+generic-ui .row {
+  gap: 6px;
+  height: auto;
+  layout-type: row;
+}
+
+generic-ui .label {
+  left: 1s;
+  top: 1s;
+  bottom: 1s;
+}
+
+param-button {
+  height: 30px;
+  width: auto;
+  border-color: #0a0a0a;
+  border-width: 1px;
+  padding-right: 7px;
+  padding-left: 7px;
+  alignment: center;
+  background-color: #d0d0d000;
+  transition: background-color 100ms;
+}
+
+param-button:hover {
+  background-color: #d0d0d080;
+  transition: background-color 100ms;
+}
+
+param-button:checked {
+  background-color: #d0d0d0;
+  transition: background-color 100ms;
+}
+
+param-button.bypass {
+  background-color: #ffcfcb00;
+  transition: background-color 100ms;
+}
+
+param-button.bypass:hover {
+  background-color: #ffcfcb20;
+  transition: background-color 100ms;
+}
+
+param-button.bypass:checked {
+  background-color: #ffcfcb;
+  transition: background-color 100ms;
+}
+
+param-slider {
+  height: 30px;
+  width: 180px;
+  border-color: #0a0a0a;
+  border-width: 1px;
+  background-color: transparent;
+  transition: background-color 100ms;
+}
+
+param-slider:active,
+param-slider:hover {
+  background-color: #8080801a;
+  transition: background-color 100ms;
+}
+
+param-slider .fill {
+  background-color: #c4c4c4;
+  background-color: #ac3535;
+}
+
+param-slider .fill--modulation {
+  background-color: #a4eafc69;
+}
+
+/* This is a textbox, but we want it to appear just like the label */
+param-slider .value-entry {
+  /* Vizia doesn't support the unset value */
+  background-color: transparent;
+  border-width: 0px;
+  alignment: center;
+}
+
+param-slider .value-entry .caret {
+  background-color: #0a0a0a;
+}
+
+param-slider .value-entry .selection {
+  background-color: #0a0a0a30;
+}
+
+peak-meter {
+  height: 30px;
+  width: 180px;
+}
+
+peak-meter .bar {
+  height: 50%;
+  border-width: 1px;
+  border-color: #0a0a0a;
+}
+
+peak-meter .ticks {
+  height: 50%;
+}
+
+peak-meter .ticks__tick {
+  background-color: #0a0a0a;
+  top: 0px;
+  width: 1px;
+  height: 30%;
+}
+
+peak-meter .ticks__label {
+  position-type: absolute;
+  top: 4px; /* In pixels in an attempt to get this to better align to the grid */
+  font-size: 11; /* 14.667px */
+  left: 1s;
+  right: 1s;
+}
+
+resize-handle {
+  bottom: 0px;
+  color: #696969;
+  height: 20px;
+  left: 1s;
+  opacity: 0.4;
+  position-type: absolute;
+  right: 0px;
+  top: 1s;
+  transition: opacity 100ms;
+  width: 20px;
+  z-index: 1337;
+}
+
+resize-handle:active,
+resize-handle:hover {
+  opacity: 0.8;
+  transition: opacity 100ms;
+}
