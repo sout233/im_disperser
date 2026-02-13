@@ -19,3 +19,7 @@ For installer:
 ```bash
 cargo run -p im_installer --release
 ```
+
+## So MacOS?
+
+see also: https://github.com/JouderMin/im_disperser/releases
