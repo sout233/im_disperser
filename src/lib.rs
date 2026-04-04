@@ -67,7 +67,15 @@ impl Default for DisperserParams {
                     factor: FloatRange::skew_factor(-2.0),
                 },
             )
-            .with_unit(" Hz"),
+            .with_string_to_value(|param_inner| {
+                const A4: f32 = 440.0;
+                const A4_MIDI: i32 = 57;
+                let semitones = 12.0 * (param_inner / A4).log2();
+                let semitones_rounded = semitones.round() as i32;
+                let midi_number = (57 + semitones_rounded) as u32;
+
+                format!("{} / {} Hz", format_note(midi_number), param_inner)
+            }),
 
             spread: FloatParam::new(
                 "Spread",
@@ -83,6 +91,15 @@ impl Default for DisperserParams {
             amount: IntParam::new("Amount", 80, IntRange::Linear { min: 0, max: 100 }),
         }
     }
+}
+
+const NOTE_NAMES: [&str; 12] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
+/// Format a note number as a string.
+fn format_note(note: u32) -> String {
+	let note_index = (note % 12) as usize;
+	let octave = (note / 12) as i32;
+	format!("{}{}", NOTE_NAMES[note_index], octave)
 }
 
 impl Plugin for DisperserPlugin {
