@@ -177,7 +177,7 @@
     border-width: 0.5px;
     border-color: rgb(100 200 100 / 0.6);
     shadow: 0px -2px 72px 1px rgb(0 0 0 / 30%);
-    max-width: 120%;
+    /*max-width: 120%;*/
     height: auto;
     translate: 0px -30px;
     alignment: top-center;
