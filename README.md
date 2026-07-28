@@ -14,6 +14,12 @@ For VST3/CLAP plugins
 cargo xtask bundle im_disperser --release
 ```
 
+For a universal macOS VST3/CLAP build:
+
+```bash
+cargo xtask bundle-universal im_disperser --release
+```
+
 For installer:
 
 ```bash

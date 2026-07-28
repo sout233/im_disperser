@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-vizia = { git = "https://github.com/vizia/vizia" }
+vizia = { git = "https://github.com/vizia/vizia", rev = "c0ada337a12f3b132d8f41203f6c0eda56ef33d7" }
 windows-elevate = "0.1.0"
 rfd = "0.16.0"
 privesc = "1.2.0"

@@ -5,10 +5,6 @@ use vizia_plug::vizia::vg::Point;
 
 use vizia_plug::widgets::param_base::ParamWidgetBase;
 use vizia_plug::widgets::util::ModifiersExt;
-use windows::Win32::Foundation::POINT;
-use windows::Win32::UI::WindowsAndMessaging::GetCursorPos;
-use windows::Win32::UI::WindowsAndMessaging::SetCursorPos;
-use windows::Win32::UI::WindowsAndMessaging::ShowCursor;
 
 static DEFAULT_DRAG_SCALAR: f32 = 0.0042;
 static DEFAULT_WHEEL_SCALAR: f32 = 0.005;
@@ -17,7 +13,6 @@ static DEFAULT_WHEEL_SCALAR: f32 = 0.005;
 pub struct DragStatus {
     drag_start_y: f32,
     drag_start_value: f32,
-    drag_start_screen_pos: POINT,
 }
 
 #[derive(Lens)]
@@ -149,18 +144,11 @@ impl View for ParamKnob {
                     cx.capture();
                     cx.focus();
                     cx.set_active(true);
-                    force_hide_cursor();
                     self.dragging = true;
-
-                    let mut current_screen_pos = POINT::default();
-                    unsafe {
-                        GetCursorPos(&mut current_screen_pos).unwrap();
-                    }
 
                     self.drag_status = Some(DragStatus {
                         drag_start_y: cx.mouse().cursor_y,
                         drag_start_value: self.param_base.unmodulated_normalized_value(),
-                        drag_start_screen_pos: current_screen_pos,
                     });
 
                     self.param_base.begin_set_parameter(cx);
@@ -186,10 +174,6 @@ impl View for ParamKnob {
                 if self.drag_status.is_some() {
                     self.drag_status = None;
 
-                    // cx.set_cursor_icon(CursorIcon::Default);
-                    // cx.set_cursor_grab(CursorGrabMode::Ungrab);
-                    force_show_cursor();
-
                     cx.release();
                     cx.set_active(false);
                     self.param_base.end_set_parameter(cx);
@@ -198,33 +182,18 @@ impl View for ParamKnob {
                 }
             }
 
-            WindowEvent::MouseMove(_, _y) => {
+            WindowEvent::MouseMove(_, y) => {
                 if let Some(status) = self.drag_status {
-                    let mut current_screen_pos = POINT::default();
-                    unsafe {
-                        GetCursorPos(&mut current_screen_pos).unwrap();
-                    }
+                    let dy = status.drag_start_y - *y;
+                    let new_val = normalized_drag_value(
+                        status.drag_start_value,
+                        dy,
+                        self.drag_scalar,
+                        cx.modifiers().shift(),
+                    );
 
-                    let dy = status.drag_start_screen_pos.y - current_screen_pos.y;
-
-                    if dy != 0 {
-                        let mut value_delta = dy as f32 * self.drag_scalar;
-                        if cx.modifiers().shift() {
-                            value_delta *= 0.1;
-                        }
-
-                        let current_val = self.param_base.unmodulated_normalized_value();
-                        let new_val = (current_val + value_delta).clamp(0.0, 1.0);
+                    if new_val != self.param_base.unmodulated_normalized_value() {
                         self.param_base.set_normalized_value(cx, new_val);
-
-                        // 强行拉回
-                        unsafe {
-                            SetCursorPos(
-                                status.drag_start_screen_pos.x,
-                                status.drag_start_screen_pos.y,
-                            )
-                            .unwrap();
-                        }
                     }
                     meta.consume();
                 }
@@ -406,10 +375,36 @@ impl View for ArcTrack {
     }
 }
 
-fn force_show_cursor() {
-    while unsafe { ShowCursor(true) } < 0 {}
+fn normalized_drag_value(start_value: f32, delta_y: f32, drag_scalar: f32, fine: bool) -> f32 {
+    let fine_multiplier = if fine { 0.1 } else { 1.0 };
+    (start_value + delta_y * drag_scalar * fine_multiplier).clamp(0.0, 1.0)
 }
 
-fn force_hide_cursor() {
-    while unsafe { ShowCursor(false) } > 0 {}
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn drag_value_uses_the_start_value() {
+        let value = super::normalized_drag_value(0.5, 10.0, 0.0042, false);
+
+        assert!((value - 0.542).abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn shift_drag_uses_a_finer_step() {
+        let value = super::normalized_drag_value(0.5, 10.0, 0.0042, true);
+
+        assert!((value - 0.5042).abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn drag_value_is_clamped_to_the_normalized_range() {
+        assert_eq!(
+            super::normalized_drag_value(0.99, 1000.0, 0.0042, false),
+            1.0
+        );
+        assert_eq!(
+            super::normalized_drag_value(0.01, -1000.0, 0.0042, false),
+            0.0
+        );
+    }
 }
