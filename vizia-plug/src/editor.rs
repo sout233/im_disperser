@@ -1,6 +1,5 @@
 //! The [`Editor`] trait implementation for Vizia editors.
 
-
 use crossbeam::atomic::AtomicCell;
 use nih_plug::debug::*;
 use nih_plug::prelude::{Editor, GuiContext, ParentWindowHandle};
@@ -52,18 +51,18 @@ impl Editor for ViziaEditor {
         let system_scaling_factor = self.scaling_factor.load();
         let user_scale_factor = vizia_state.user_scale_factor();
 
-        let mut application = Application::new(move |cx| {
+        let application = Application::new(move |cx| {
             // Set some default styles to match the iced integration
             //if theming >= ViziaTheming::Custom {
-                cx.set_default_font(&[NOTO_SANS]);
-                if let Err(err) = cx.add_stylesheet(include_style!("src/assets/theme.css")) {
-                    nih_error!("Failed to load stylesheet: {err:?}");
-                    panic!();
-                }
+            cx.set_default_font(&[NOTO_SANS]);
+            if let Err(err) = cx.add_stylesheet(include_style!("src/assets/theme.css")) {
+                nih_error!("Failed to load stylesheet: {err:?}");
+                panic!();
+            }
 
-                // There doesn't seem to be any way to bundle styles with a widget, so we'll always
-                // include the style sheet for our custom widgets at context creation
-                widgets::register_theme(cx);
+            // There doesn't seem to be any way to bundle styles with a widget, so we'll always
+            // include the style sheet for our custom widgets at context creation
+            widgets::register_theme(cx);
             //}
 
             // Any widget can change the parameters by emitting `ParamEvent` events. This model will
@@ -94,8 +93,10 @@ impl Editor for ViziaEditor {
                 .unwrap_or(WindowScalePolicy::SystemScaleFactor),
         )
         .inner_size((unscaled_width, unscaled_height))
-        .user_scale_factor(user_scale_factor)
-        .on_idle({
+        .user_scale_factor(user_scale_factor);
+
+        #[cfg(target_os = "macos")]
+        let mut application = application.on_idle({
             let emit_parameters_changed_event = self.emit_parameters_changed_event.clone();
             move |cx| {
                 if emit_parameters_changed_event
@@ -109,6 +110,9 @@ impl Editor for ViziaEditor {
                 }
             }
         });
+
+        #[cfg(not(target_os = "macos"))]
+        let mut application = application;
 
         // This way the plugin can decide to use none of the built in theming
         if theming == ViziaTheming::None {

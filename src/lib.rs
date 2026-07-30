@@ -4,8 +4,8 @@ use std::sync::Arc;
 use vizia_plug::ViziaState;
 
 use i_am_dsp::{
-    Effect, ProcessContext as DspContext, ProcessInfos, prelude::Disperser,
-    real_time_demo::SimpleContext,
+    prelude::Disperser, real_time_demo::SimpleContext, Effect, ProcessContext as DspContext,
+    ProcessInfos,
 };
 
 mod editor;
@@ -73,20 +73,31 @@ impl Default for DisperserParams {
                 let semitones = 12.0 * (param_inner / A4).log2();
                 let semitones_rounded = semitones.round() as i32;
                 let midi_number = (57 + semitones_rounded) as u32;
-                format!("{} / {:.1} Hz", format_note(midi_number), param_inner)
+                #[cfg(target_os = "windows")]
+                {
+                    format!("{} / {} Hz", format_note(midi_number), param_inner)
+                }
+                #[cfg(not(target_os = "windows"))]
+                {
+                    format!("{} / {:.1} Hz", format_note(midi_number), param_inner)
+                }
             })),
 
-            spread: FloatParam::new(
-                "Spread",
-                1145.0,
-                FloatRange::Skewed {
-                    min: 0.1,
-                    max: 2000.0,
-                    factor: FloatRange::skew_factor(-2.0),
-                },
-            )
-            .with_value_to_string(Arc::new(|param_inner| format!("{param_inner:.1}")))
-            .with_unit(" Hz"),
+            spread: {
+                let spread = FloatParam::new(
+                    "Spread",
+                    1145.0,
+                    FloatRange::Skewed {
+                        min: 0.1,
+                        max: 2000.0,
+                        factor: FloatRange::skew_factor(-2.0),
+                    },
+                );
+                #[cfg(not(target_os = "windows"))]
+                let spread = spread
+                    .with_value_to_string(Arc::new(|param_inner| format!("{param_inner:.1}")));
+                spread.with_unit(" Hz")
+            },
 
             amount: IntParam::new("Amount", 80, IntRange::Linear { min: 0, max: 100 }),
         }

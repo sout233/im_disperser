@@ -154,7 +154,7 @@ impl ParamKnob {
                 // it from a drag-state binding made its layout and hit-test state race with mouse
                 // events, which could move a readout over a different knob.
                 let label = ParamValueDisplay::new(cx, display_state_for_build)
-                    .class("param-value-label")
+                    .class("param-value-label-macos")
                     .position_type(PositionType::Absolute)
                     .alignment(Alignment::TopCenter)
                     .hoverable(false)
