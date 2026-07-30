@@ -8,6 +8,11 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use vizia::prelude::*;
 
+#[cfg(target_os = "macos")]
+use objc::{msg_send, runtime::Object, sel, sel_impl};
+#[cfg(target_os = "macos")]
+use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
+
 use crate::widgets::RawParamEvent;
 use crate::{widgets, ViziaState, ViziaTheming};
 
@@ -89,21 +94,21 @@ impl Editor for ViziaEditor {
                 .unwrap_or(WindowScalePolicy::SystemScaleFactor),
         )
         .inner_size((unscaled_width, unscaled_height))
-        .user_scale_factor(user_scale_factor);
-        // .on_idle({
-        //     let emit_parameters_changed_event = self.emit_parameters_changed_event.clone();
-        //     move |cx| {
-        //         if emit_parameters_changed_event
-        //             .compare_exchange(true, false, Ordering::AcqRel, Ordering::Relaxed)
-        //             .is_ok()
-        //         {
-        //             cx.emit_custom(
-        //                 Event::new(RawParamEvent::ParametersChanged)
-        //                     .propagate(Propagation::Subtree),
-        //             );
-        //         }
-        //     }
-        // });
+        .user_scale_factor(user_scale_factor)
+        .on_idle({
+            let emit_parameters_changed_event = self.emit_parameters_changed_event.clone();
+            move |cx| {
+                if emit_parameters_changed_event
+                    .compare_exchange(true, false, Ordering::AcqRel, Ordering::Relaxed)
+                    .is_ok()
+                {
+                    cx.emit_custom(
+                        Event::new(RawParamEvent::ParametersChanged)
+                            .propagate(Propagation::Subtree),
+                    );
+                }
+            }
+        });
 
         // This way the plugin can decide to use none of the built in theming
         if theming == ViziaTheming::None {
@@ -111,6 +116,14 @@ impl Editor for ViziaEditor {
         }
 
         let window = application.open_parented(&parent);
+
+        // Baseview embeds the Vizia view into Live's NSView, but it does not make the
+        // host window key or transfer first-responder status to the newly-created view.
+        // On macOS this leaves the freshly opened editor visible but inactive until the
+        // user clicks it once. Do this after open_parented(), once the child view has
+        // actually been attached to its host window.
+        #[cfg(target_os = "macos")]
+        focus_macos_editor_view(&parent, &window);
 
         self.vizia_state.open.store(true, Ordering::Release);
         Box::new(ViziaEditorHandle {
@@ -154,6 +167,40 @@ impl Editor for ViziaEditor {
     fn param_values_changed(&self) {
         self.emit_parameters_changed_event
             .store(true, Ordering::Relaxed);
+    }
+}
+
+/// Make a newly-created embedded editor immediately active in its host window.
+///
+/// This intentionally operates on the host's existing window only. It does not activate
+/// another macOS application, change the window level, or create a floating window.
+#[cfg(target_os = "macos")]
+fn focus_macos_editor_view(parent: &ParentWindowHandle, editor: &WindowHandle) {
+    let RawWindowHandle::AppKit(parent_handle) = parent.raw_window_handle() else {
+        return;
+    };
+    let RawWindowHandle::AppKit(editor_handle) = editor.raw_window_handle() else {
+        return;
+    };
+
+    let parent_view = parent_handle.ns_view as *mut Object;
+    let editor_view = editor_handle.ns_view as *mut Object;
+    if parent_view.is_null() || editor_view.is_null() {
+        return;
+    }
+
+    unsafe {
+        let host_window: *mut Object = msg_send![parent_view, window];
+        if host_window.is_null() {
+            return;
+        }
+
+        // The plugin editor is embedded in Live's window, so making that existing
+        // window key/front is enough to bring the GUI forward without stealing focus
+        // from another application.
+        let nil: *mut Object = std::ptr::null_mut();
+        let _: () = msg_send![host_window, makeKeyAndOrderFront: nil];
+        let _: () = msg_send![host_window, makeFirstResponder: editor_view];
     }
 }
 

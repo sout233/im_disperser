@@ -136,14 +136,18 @@ pub(crate) fn create(
                         VStack::new(cx, |cx| {
                             ParamKnob::new(cx, Data::params, |params| &params.amount, true)
                                 .class("knob");
-                            Label::new(cx, "AMOUNT").class("params-label");
+                            Label::new(cx, "AMOUNT")
+                                .class("params-label")
+                                .hoverable(false);
                         })
                         .class("knob-cont");
 
                         VStack::new(cx, |cx| {
                             ParamKnob::new(cx, Data::params, |params| &params.spread, true)
                                 .class("knob");
-                            Label::new(cx, "SPREAD").class("params-label");
+                            Label::new(cx, "SPREAD")
+                                .class("params-label")
+                                .hoverable(false);
                         })
                         // genshin impact is the worst game in the world
                         .class("knob-cont");
@@ -151,7 +155,9 @@ pub(crate) fn create(
                         VStack::new(cx, |cx| {
                             ParamKnob::new(cx, Data::params, |params| &params.frequency, true)
                                 .class("knob");
-                            Label::new(cx, "FREQUENCY").class("params-label");
+                            Label::new(cx, "FREQUENCY")
+                                .class("params-label")
+                                .hoverable(false);
                         })
                         .class("knob-cont");
                     })

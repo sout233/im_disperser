@@ -22,22 +22,7 @@
 .knob {
     height: 80px;
     width: 80px;
-    shadow:
-        4px 4px 24px 4px rgb(80 123 80 / 20%),
-        -4px -4px 24px 4px white;
     corner-radius: 48px;
-    scale: 100%;
-    transition: scale 233ms;
-    transition: shadow 233ms;
-}
-
-.knob:hover {
-    scale: 95%;
-    shadow:
-        4px 4px 24px 0px rgb(80 123 80 / 20%),
-        4px 4px 24px 0px white;
-    transition: scale 233ms;
-    transition: shadow 233ms;
 }
 
 .knob-cont {
@@ -49,15 +34,15 @@
 }
 
 .params-label {
-    background-color: white;
+    background-color: transparent;
     color: black;
     transition: background-color 233ms;
     transition: color 233ms;
 }
 
 .params-label:hover {
-    background-color: black;
-    color: white;
+    background-color: transparent;
+    color: black;
     transition: background-color 233ms;
     transition: color 233ms;
 }
@@ -166,20 +151,23 @@
 }
 
 .param-value-label {
-    font-size: 12px;
+    font-size: 24px;
     font-weight: normal;
-    /*position-type: absolute;*/
     padding-left: 4px;
     padding-right: 4px;
     padding-top: 2px;
     padding-bottom: 2px;
-    corner-radius: 4px;
-    border-width: 0.5px;
-    border-color: rgb(100 200 100 / 0.6);
-    shadow: 0px -2px 72px 1px rgb(0 0 0 / 30%);
-    /*max-width: 120%;*/
+    /* Position the fixed 100px readout around the current knob's center. */
+    left: 50%;
+    top: 0px;
+    translate: -50px -62px;
+    alignment: top-left;
     height: auto;
-    translate: 0px -30px;
-    alignment: top-center;
-    background-color: palegreen;
+
+    /* Static glass treatment: translucent tint, bright rim, and a soft fixed shadow. */
+    corner-radius: 10px;
+    border-width: 1px;
+    border-color: rgb(255 255 255 / 78%);
+    background-color: rgb(218 255 231 / 72%);
+    shadow: 0px 5px 16px 0px rgb(25 90 48 / 22%);
 }

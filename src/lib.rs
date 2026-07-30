@@ -73,7 +73,7 @@ impl Default for DisperserParams {
                 let semitones = 12.0 * (param_inner / A4).log2();
                 let semitones_rounded = semitones.round() as i32;
                 let midi_number = (57 + semitones_rounded) as u32;
-                format!("{} / {} Hz", format_note(midi_number), param_inner)
+                format!("{} / {:.1} Hz", format_note(midi_number), param_inner)
             })),
 
             spread: FloatParam::new(
@@ -85,6 +85,7 @@ impl Default for DisperserParams {
                     factor: FloatRange::skew_factor(-2.0),
                 },
             )
+            .with_value_to_string(Arc::new(|param_inner| format!("{param_inner:.1}")))
             .with_unit(" Hz"),
 
             amount: IntParam::new("Amount", 80, IntRange::Linear { min: 0, max: 100 }),

@@ -18,6 +18,9 @@ crossbeam = "0.8"
 # To make the state persistable
 serde = { version = "1.0", features = ["derive"] }
 
+[target.'cfg(target_os = "macos")'.dependencies]
+objc = "0.2.7"
+raw-window-handle = "0.5.2"
 
 # [profile.release]
 # lto = "thin"
