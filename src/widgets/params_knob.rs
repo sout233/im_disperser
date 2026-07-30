@@ -285,6 +285,10 @@ impl View for ParamKnob {
                         }
                         current_screen_pos
                     };
+                    #[cfg(target_os = "windows")]
+                    let drag_start_value = self.param_base.unmodulated_normalized_value();
+                    #[cfg(not(target_os = "windows"))]
+                    let drag_start_value = self.preview_normalized_value;
                     self.drag_status = Some(DragStatus {
                         #[cfg(not(target_os = "windows"))]
                         // A valid MouseDown coordinate is the drag baseline, so even a short
@@ -294,7 +298,7 @@ impl View for ParamKnob {
                         previous_y: initial_drag_baseline(cx.mouse().cursor_y),
                         #[cfg(target_os = "windows")]
                         previous_y: None,
-                        normalized_value: self.param_base.unmodulated_normalized_value(),
+                        normalized_value: drag_start_value,
                         last_host_commit_at: None,
                         last_committed_value: None,
                         #[cfg(target_os = "windows")]
@@ -302,7 +306,7 @@ impl View for ParamKnob {
                     });
                     // Establish both visual channels from the same host value before the first
                     // drag delta. This avoids starting a gesture from a stale arc/readout value.
-                    self.update_preview(cx, self.param_base.unmodulated_normalized_value());
+                    self.update_preview(cx, drag_start_value);
                     cx.needs_redraw();
                     self.refresh_display_label(cx, true);
 
