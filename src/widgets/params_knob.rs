@@ -10,9 +10,20 @@ use vizia_plug::widgets::param_base::ParamWidgetBase;
 use vizia_plug::widgets::util::ModifiersExt;
 use vizia_plug::widgets::RawParamEvent;
 
-// Normal drag changes 0.2% of the normalized range per physical pixel. For the 0..100 Amount
-// parameter this is 0.2 Amount units per pixel before integer rounding, or roughly 500 pixels
-// for the complete range.
+#[cfg(target_os = "windows")]
+use windows::Win32::Foundation::POINT;
+#[cfg(target_os = "windows")]
+use windows::Win32::UI::WindowsAndMessaging::{GetCursorPos, SetCursorPos, ShowCursor};
+
+// Keep the Windows gesture's original sensitivity. The macOS/non-Windows path uses the new
+// lower-sensitivity local-coordinate drag implementation below.
+#[cfg(target_os = "windows")]
+const DEFAULT_DRAG_SCALAR: f32 = 0.0042;
+
+// Normal macOS drag changes 0.2% of the normalized range per physical pixel. For the 0..100
+// Amount parameter this is 0.2 Amount units per pixel before integer rounding, or roughly 500
+// pixels for the complete range.
+#[cfg(not(target_os = "windows"))]
 const DEFAULT_DRAG_SCALAR: f32 = 0.002;
 // Shift drag is 25x finer than normal drag: 0.008% of the normalized range per pixel. That is
 // 0.00008 normalized units per pixel and roughly 12,500 pixels for the complete Amount range.
@@ -26,6 +37,8 @@ pub struct DragStatus {
     normalized_value: f32,
     last_host_commit_at: Option<Instant>,
     last_committed_value: Option<f32>,
+    #[cfg(target_os = "windows")]
+    drag_start_screen_pos: POINT,
 }
 
 #[derive(Lens)]
@@ -263,15 +276,29 @@ impl View for ParamKnob {
                     cx.capture();
                     cx.focus();
                     cx.set_active(true);
+                    #[cfg(target_os = "windows")]
+                    let drag_start_screen_pos = {
+                        force_hide_cursor();
+                        let mut current_screen_pos = POINT::default();
+                        unsafe {
+                            GetCursorPos(&mut current_screen_pos).unwrap();
+                        }
+                        current_screen_pos
+                    };
                     self.drag_status = Some(DragStatus {
+                        #[cfg(not(target_os = "windows"))]
                         // A valid MouseDown coordinate is the drag baseline, so even a short
                         // gesture containing only one coalesced MouseMove changes the value.
                         // Fall back to establishing the baseline on MouseMove only if the
                         // backend supplied an invalid coordinate.
                         previous_y: initial_drag_baseline(cx.mouse().cursor_y),
+                        #[cfg(target_os = "windows")]
+                        previous_y: None,
                         normalized_value: self.param_base.unmodulated_normalized_value(),
                         last_host_commit_at: None,
                         last_committed_value: None,
+                        #[cfg(target_os = "windows")]
+                        drag_start_screen_pos,
                     });
                     // Establish both visual channels from the same host value before the first
                     // drag delta. This avoids starting a gesture from a stale arc/readout value.
@@ -313,6 +340,8 @@ impl View for ParamKnob {
                     cx.needs_redraw();
                     self.drag_status.take();
                     self.refresh_display_label(cx, false);
+                    #[cfg(target_os = "windows")]
+                    force_show_cursor();
                     cx.release();
                     cx.set_active(false);
                     self.param_base.end_set_parameter(cx);
@@ -322,42 +351,80 @@ impl View for ParamKnob {
 
             WindowEvent::MouseMove(_, y) => {
                 if self.drag_status.is_some() {
-                    let now = Instant::now();
-                    let (normalized_value, should_commit) = {
-                        let status = self.drag_status.as_mut().unwrap();
-                        let Some(delta_y) = next_drag_delta(&mut status.previous_y, *y) else {
-                            meta.consume();
-                            return;
-                        };
+                    #[cfg(target_os = "windows")]
+                    {
+                        let mut current_screen_pos = POINT::default();
+                        unsafe {
+                            GetCursorPos(&mut current_screen_pos).unwrap();
+                        }
 
-                        status.normalized_value = relative_drag_value(
-                            status.normalized_value,
-                            delta_y,
-                            self.drag_scalar,
-                            cx.modifiers().shift(),
-                        );
-                        let should_commit = host_commit_due(
-                            status
-                                .last_host_commit_at
-                                .map(|last| now.saturating_duration_since(last)),
-                        );
-                        (status.normalized_value, should_commit)
-                    };
+                        let status = self.drag_status.as_ref().unwrap();
+                        let dy = status.drag_start_screen_pos.y - current_screen_pos.y;
+                        if dy != 0 {
+                            let mut value_delta = dy as f32 * self.drag_scalar;
+                            if cx.modifiers().shift() {
+                                value_delta *= 0.1;
+                            }
 
-                    // Keep the visual value continuous even when the host parameter is stepped
-                    // or the host only accepts updates at a lower rate.
-                    self.update_preview(cx, normalized_value);
-                    self.refresh_display_label(cx, true);
-                    cx.needs_redraw();
+                            let current_value = self.param_base.unmodulated_normalized_value();
+                            let new_value = (current_value + value_delta).clamp(0.0, 1.0);
+                            self.param_base.set_normalized_value(cx, new_value);
+                            self.update_preview(cx, new_value);
+                            self.refresh_display_label(cx, true);
+                            cx.needs_redraw();
 
-                    if should_commit {
-                        self.param_base.set_normalized_value(cx, normalized_value);
-                        let status = self.drag_status.as_mut().unwrap();
-                        status.last_host_commit_at = Some(now);
-                        status.last_committed_value = Some(normalized_value);
+                            unsafe {
+                                SetCursorPos(
+                                    status.drag_start_screen_pos.x,
+                                    status.drag_start_screen_pos.y,
+                                )
+                                .unwrap();
+                            }
+                        }
+
+                        meta.consume();
+                        return;
                     }
 
-                    meta.consume();
+                    #[cfg(not(target_os = "windows"))]
+                    {
+                        let now = Instant::now();
+                        let (normalized_value, should_commit) = {
+                            let status = self.drag_status.as_mut().unwrap();
+                            let Some(delta_y) = next_drag_delta(&mut status.previous_y, *y) else {
+                                meta.consume();
+                                return;
+                            };
+
+                            status.normalized_value = relative_drag_value(
+                                status.normalized_value,
+                                delta_y,
+                                self.drag_scalar,
+                                cx.modifiers().shift(),
+                            );
+                            let should_commit = host_commit_due(
+                                status
+                                    .last_host_commit_at
+                                    .map(|last| now.saturating_duration_since(last)),
+                            );
+                            (status.normalized_value, should_commit)
+                        };
+
+                        // Keep the visual value continuous even when the host parameter is stepped
+                        // or the host only accepts updates at a lower rate.
+                        self.update_preview(cx, normalized_value);
+                        self.refresh_display_label(cx, true);
+                        cx.needs_redraw();
+
+                        if should_commit {
+                            self.param_base.set_normalized_value(cx, normalized_value);
+                            let status = self.drag_status.as_mut().unwrap();
+                            status.last_host_commit_at = Some(now);
+                            status.last_committed_value = Some(normalized_value);
+                        }
+
+                        meta.consume();
+                    }
                 }
             }
 
@@ -661,6 +728,16 @@ fn display_update_needed(
     next_visible: bool,
 ) -> bool {
     previous_text != next_text || previous_visible != next_visible
+}
+
+#[cfg(target_os = "windows")]
+fn force_show_cursor() {
+    while unsafe { ShowCursor(true) } < 0 {}
+}
+
+#[cfg(target_os = "windows")]
+fn force_hide_cursor() {
+    while unsafe { ShowCursor(false) } > 0 {}
 }
 
 #[cfg(test)]
