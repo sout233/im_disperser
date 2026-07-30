@@ -274,3 +274,9 @@ impl Vst3Plugin for DisperserPlugin {
 
 nih_export_clap!(DisperserPlugin);
 nih_export_vst3!(DisperserPlugin);
+
+// The AUv2 wrapper is macOS-only. It re-exports the CLAP entry point from the
+// same self-contained library, while Windows keeps the original exports and
+// cursor behavior unchanged.
+#[cfg(target_os = "macos")]
+clap_wrapper::export_auv2!();

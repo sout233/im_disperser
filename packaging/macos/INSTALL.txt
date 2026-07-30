@@ -1,0 +1,18 @@
+IM_DISPERSER macOS Universal Plug-ins
+
+This package contains AUv2, VST3, and CLAP builds for Apple silicon and Intel Macs.
+
+Install AUv2 for Logic Pro:
+  cp -R "IM_DISPERSER.component" "$HOME/Library/Audio/Plug-Ins/Components/"
+
+Install VST3:
+  cp -R "im_disperser.vst3" "$HOME/Library/Audio/Plug-Ins/VST3/"
+
+Install CLAP:
+  cp -R "im_disperser.clap" "$HOME/Library/Audio/Plug-Ins/CLAP/"
+
+The AUv2 component can be checked with:
+  auval -v aufx IMDS SOUT
+
+The AUv2 build is a macOS-only wrapper around the existing CLAP export. Windows
+exports and Windows knob interaction are not changed by this packaging path.
