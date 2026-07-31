@@ -14,10 +14,20 @@
 	<string>IM_DISPERSER</string>
 	<key>CFBundlePackageType</key>
 	<string>BNDL</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleSupportedPlatforms</key>
+	<array>
+		<string>MacOSX</string>
+	</array>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.13</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
 	<key>CFBundleShortVersionString</key>
-	<string>0.1.3</string>
+	<string>0.1.4</string>
 	<key>CFBundleVersion</key>
-	<string>0.1.3</string>
+	<string>0.1.4</string>
 	<key>AudioComponents</key>
 	<array>
 		<dict>
@@ -28,13 +38,28 @@
 			<key>manufacturer</key>
 			<string>SOUT</string>
 			<key>name</key>
-			<string>IM_DISPERSER</string>
+			<string>SOUT: IM_DISPERSER</string>
+			<key>resourceUsage</key>
+			<dict>
+				<key>network.client</key>
+				<true/>
+				<key>temporary-exception.files.all.read-write</key>
+				<true/>
+			</dict>
+			<key>sandboxSafe</key>
+			<true/>
 			<key>subtype</key>
 			<string>IMDS</string>
+			<key>tags</key>
+			<array>
+				<string>Effects</string>
+				<string>Modulation</string>
+				<string>Phaser</string>
+			</array>
 			<key>type</key>
 			<string>aufx</string>
 			<key>version</key>
-			<integer>65536</integer>
+			<integer>65540</integer>
 		</dict>
 	</array>
 </dict>

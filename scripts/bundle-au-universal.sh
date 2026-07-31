@@ -26,6 +26,14 @@ fi
 
 cd "${ROOT_DIR}"
 
+clean_bundle_metadata() {
+    local bundle_path="$1"
+
+    find "${bundle_path}" -name '._*' -type f -delete
+    find "${bundle_path}" -name '__MACOSX' -type d -prune -exec rm -rf {} +
+    xattr -cr "${bundle_path}" 2>/dev/null || true
+}
+
 echo "Building arm64 AUv2 library..."
 "${CARGO_NATIVE[@]}" build --release --lib --target aarch64-apple-darwin
 
@@ -51,13 +59,21 @@ install_name_tool -id "@rpath/IM_DISPERSER" "${COMPONENT_BINARY}"
 
 cp "${ROOT_DIR}/packaging/macos/Info.auv2.plist" \
     "${COMPONENT_DIR}/Contents/Info.plist"
+printf 'BNDL????' > "${COMPONENT_DIR}/Contents/PkgInfo"
 chmod +x "${COMPONENT_BINARY}"
+clean_bundle_metadata "${COMPONENT_DIR}"
+
+# Seal the final, metadata-free bundle. Ad-hoc signing is sufficient for local
+# testing; a public release can replace this with a Developer ID signature.
+codesign --force --deep --sign - --timestamp=none "${COMPONENT_DIR}"
 
 plutil -lint "${COMPONENT_DIR}/Contents/Info.plist"
+codesign --verify --deep --strict "${COMPONENT_DIR}"
 lipo -info "${COMPONENT_BINARY}"
 
 mkdir -p "${DIST_DIR}"
-ditto -c -k --keepParent "${COMPONENT_DIR}" \
+rm -f "${DIST_DIR}/im_disperser-auv2-universal.zip"
+ditto --norsrc --noextattr --noqtn -c -k --keepParent "${COMPONENT_DIR}" \
     "${DIST_DIR}/im_disperser-auv2-universal.zip"
 
 echo "AUv2 component: ${COMPONENT_DIR}"

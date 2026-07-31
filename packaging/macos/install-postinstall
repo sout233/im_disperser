@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Do not remove Audio Unit or host caches here. Restarting the registrar lets
+# macOS observe the newly installed component without discarding user state.
+/usr/bin/killall AudioComponentRegistrar 2>/dev/null || true
+
+exit 0

@@ -29,18 +29,16 @@ For a universal macOS AUv2 build:
 To package the Universal AUv2, VST3, and CLAP builds into a macOS installer:
 
 ```bash
-./scripts/package-macos-dmg.sh
+./scripts/package-macos-pkg.sh
 ```
 
-This creates `target/bundled/im_disperser-macos-universal.dmg`. The AUv2 build
+This creates `target/bundled/im_disperser-macos-universal.pkg`. The AUv2 build
 uses a macOS-only wrapper around the existing CLAP export; it does not change
-the Windows implementation.
-
-This creates `target/bundled/IM_DISPERSER.component`. Copy it to
-`~/Library/Audio/Plug-Ins/Components/`, then validate it with:
+the Windows implementation. After installing the package, verify AUv2
+registration directly with:
 
 ```bash
-auval -v aufx IMDS SOUT
+./scripts/test-auv2-registration.sh
 ```
 
 For installer:
