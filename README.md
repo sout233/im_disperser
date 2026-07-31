@@ -41,6 +41,13 @@ registration directly with:
 ./scripts/test-auv2-registration.sh
 ```
 
+To verify that the AUv2 Cocoa editor can be created and attached to a host
+window:
+
+```bash
+./scripts/test-auv2-gui.sh
+```
+
 For installer:
 
 ```bash

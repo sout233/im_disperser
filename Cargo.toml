@@ -24,7 +24,7 @@ webbrowser = "1.0.6"
 [target.'cfg(target_os = "macos")'.dependencies]
 # Export the existing CLAP plugin as an AUv2 component on macOS. Keeping this
 # target-specific prevents the wrapper from changing the Windows build.
-clap-wrapper = { version = "0.3.1", default-features = false, features = ["auv2"] }
+clap-wrapper = { path = "vendor/clap-wrapper", default-features = false, features = ["auv2"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 windows = { version = "0.62.2", features = ["Win32_UI_WindowsAndMessaging", "Win32_Graphics_Gdi"] }

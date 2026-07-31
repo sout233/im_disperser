@@ -1,0 +1,51 @@
+[workspace]
+resolver = "3"
+members = [ 
+    ".", 
+    "bundler",
+    "examples/example-clack",
+    "examples/example-nih-plug",
+]
+
+[package]
+name = "clap-wrapper"
+version = "0.3.1"
+edition = "2024"
+authors = ["Quant1um"]
+readme = "README.md"
+repository = "https://github.com/blepfx/clap-wrapper-rs"
+documentation = "https://docs.rs/clap-wrapper"
+license = "MIT OR Apache-2.0"
+description = "An easy way to use clap-wrapper in your audio plugins!"
+keywords = ["vst3", "auv2", "clap", "audio", "plugin"]
+
+include = [
+    "src/**",
+    "build.rs",
+    "./README.md",
+
+    # Include external dependency licenses, just in case
+    "LICENSE*",
+
+    "external/clap/include/**",
+    "external/clap-wrapper/include/**",
+    "external/clap-wrapper/libs/**",
+    "external/clap-wrapper/src/**",
+    "external/filesystem/include/**",
+
+    "external/AudioUnitSDK/include/**",
+    "external/AudioUnitSDK/src/**", 
+
+    "external/vst3sdk/pluginterfaces/**",
+    "external/vst3sdk/public.sdk/source/**",
+    "external/vst3sdk/base/**",
+]
+
+[build-dependencies]
+cc = "1.2.52"
+
+[features]
+default = ["parallel", "vst3", "auv2"]
+parallel = ["cc/parallel"]
+vst3 = []
+auv2 = []
