@@ -5,6 +5,12 @@ use std::{
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
+    // The AUv2 build compiles this source through a generated Objective-C++
+    // include, so Cargo cannot infer the dependency automatically.
+    println!(
+        "cargo:rerun-if-changed=external/clap-wrapper/src/detail/auv2/wrappedview.asinclude.mm"
+    );
+    println!("cargo:rerun-if-changed=external/clap-wrapper/src/detail/auv2/wrappedview.mm");
 
     let os = std::env::var("CARGO_CFG_TARGET_OS").unwrap();
     let debug = std::env::var("DEBUG").unwrap() == "true";

@@ -30,6 +30,7 @@ const DEFAULT_DRAG_SCALAR: f32 = 0.002;
 const FINE_DRAG_MULTIPLIER: f32 = 0.04;
 const DEFAULT_WHEEL_SCALAR: f32 = 0.005;
 const HOST_UPDATE_INTERVAL: Duration = Duration::from_micros(16_667);
+const DRAGGING_CLASS: &str = "dragging";
 
 #[derive(Debug, Clone, Default)]
 pub struct DragStatus {
@@ -223,6 +224,10 @@ impl ParamKnob {
     }
 }
 
+fn set_dragging_visual(cx: &mut EventContext, dragging: bool) {
+    cx.toggle_class(DRAGGING_CLASS, dragging_visual_class_applied(dragging));
+}
+
 impl View for ParamKnob {
     fn element(&self) -> Option<&'static str> {
         Some("param-knob")
@@ -276,6 +281,10 @@ impl View for ParamKnob {
                     cx.capture();
                     cx.focus();
                     cx.set_active(true);
+                    // Keep the knob's flat hover appearance stable while pointer capture is
+                    // active. Baseview can temporarily report another hover target during a
+                    // drag, which otherwise makes the outer shadow flicker.
+                    set_dragging_visual(cx, true);
                     #[cfg(target_os = "windows")]
                     let drag_start_screen_pos = {
                         force_hide_cursor();
@@ -346,6 +355,9 @@ impl View for ParamKnob {
                     self.refresh_display_label(cx, false);
                     #[cfg(target_os = "windows")]
                     force_show_cursor();
+                    // Remove the explicit drag override only after the final value has been
+                    // flushed. The regular :hover rule is then free to restore its appearance.
+                    set_dragging_visual(cx, false);
                     cx.release();
                     cx.set_active(false);
                     self.param_base.end_set_parameter(cx);
@@ -734,6 +746,10 @@ fn display_update_needed(
     previous_text != next_text || previous_visible != next_visible
 }
 
+fn dragging_visual_class_applied(dragging: bool) -> bool {
+    dragging
+}
+
 #[cfg(target_os = "windows")]
 fn force_show_cursor() {
     while unsafe { ShowCursor(true) } < 0 {}
@@ -860,6 +876,17 @@ mod tests {
             true,
             true,
         ));
+    }
+
+    #[test]
+    fn dragging_visual_stays_flat_until_mouse_up() {
+        let dragging = true;
+        assert!(super::dragging_visual_class_applied(dragging));
+        // MouseMove events must not toggle the visual state while the gesture is active.
+        assert!(super::dragging_visual_class_applied(dragging));
+
+        let dragging = false;
+        assert!(!super::dragging_visual_class_applied(dragging));
     }
 
     #[test]

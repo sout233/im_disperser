@@ -31,8 +31,12 @@
 
 - (id)initWithAUv2:(free_audio::auv2_wrapper::ui_connection *)cont preferredSize:(NSSize)size;
 - (void)doIdle;
+- (void)activateHostWindow;
 - (void)dealloc;
 - (void)setFrame:(NSRect)newSize;
+- (BOOL)acceptsFirstMouse:(NSEvent *)event;
+- (BOOL)acceptsFirstResponder;
+- (BOOL)becomeFirstResponder;
 
 @end
 
@@ -174,6 +178,27 @@ void CLAP_WRAPPER_TIMER_CALLBACK(CFRunLoopTimerRef timer, void *info)
     }
   }
   [super viewDidMoveToWindow];
+  if ([self window] != nil)
+  {
+    // Match the VST editor behavior: AU hosts may attach the view without
+    // bringing its window to the front, making the first click only activate
+    // the window instead of reaching the editor.
+    [self performSelector:@selector(activateHostWindow)
+               withObject:nil
+               afterDelay:0.0];
+  }
+}
+
+- (void)activateHostWindow
+{
+  NSWindow *window = [self window];
+  if (!window)
+    return;
+
+  [window makeKeyAndOrderFront:nil];
+  NSView *editorView = [[self subviews] firstObject];
+  if (editorView)
+    [window makeFirstResponder:editorView];
 }
 
 - (void)dealloc
@@ -200,6 +225,21 @@ void CLAP_WRAPPER_TIMER_CALLBACK(CFRunLoopTimerRef timer, void *info)
     gui->set_size(ui._plugin->_plugin, newSize.size.width, newSize.size.height);
   }
   // gui->show(ui._plugin->_plugin);
+}
+
+- (BOOL)acceptsFirstMouse:(NSEvent *)event
+{
+  return YES;
+}
+
+- (BOOL)acceptsFirstResponder
+{
+  return YES;
+}
+
+- (BOOL)becomeFirstResponder
+{
+  return YES;
 }
 
 @end

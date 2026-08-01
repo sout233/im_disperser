@@ -104,6 +104,15 @@ int main(void) {
             return 1;
         }
 
+        if (![view acceptsFirstMouse:nil] || ![view acceptsFirstResponder]) {
+            [view removeFromSuperview];
+            [host_window close];
+            CFRelease(view_info.mCocoaAUViewBundleLocation);
+            AudioComponentInstanceDispose(instance);
+            fprintf(stderr, "Cocoa UI view does not accept the first mouse event.\n");
+            return 1;
+        }
+
         printf("Cocoa UI passed: class=%s frame=%.0fx%.0f attached=yes\n",
                class_name.UTF8String, view.frame.size.width, view.frame.size.height);
         [view removeFromSuperview];

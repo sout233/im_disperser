@@ -40,6 +40,20 @@
     transition: shadow 233ms;
 }
 
+/* Keep the hover appearance stable while the knob owns the pointer capture. Baseview/Vizia can
+ * temporarily move the hover target during a drag, so relying on :hover alone makes the outer
+ * highlight flicker. The controller removes this class on MouseUp and lets the normal hover rule
+ * take over again. */
+.knob.dragging,
+.knob.dragging:hover {
+    scale: 95%;
+    shadow:
+        4px 4px 24px 0px rgb(80 123 80 / 20%),
+        4px 4px 24px 0px white;
+    transition: scale 233ms;
+    transition: shadow 233ms;
+}
+
 .knob-macos {
     height: 80px;
     width: 80px;
