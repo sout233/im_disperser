@@ -14,6 +14,40 @@ For VST3/CLAP plugins
 cargo xtask bundle im_disperser --release
 ```
 
+For a universal macOS VST3/CLAP build:
+
+```bash
+cargo xtask bundle-universal im_disperser --release
+```
+
+For a universal macOS AUv2 build:
+
+```bash
+./scripts/bundle-au-universal.sh
+```
+
+To package the Universal AUv2, VST3, and CLAP builds into a macOS installer:
+
+```bash
+./scripts/package-macos-pkg.sh
+```
+
+This creates `target/bundled/im_disperser-macos-universal.pkg`. The AUv2 build
+uses a macOS-only wrapper around the existing CLAP export; it does not change
+the Windows implementation. After installing the package, verify AUv2
+registration directly with:
+
+```bash
+./scripts/test-auv2-registration.sh
+```
+
+To verify that the AUv2 Cocoa editor can be created and attached to a host
+window:
+
+```bash
+./scripts/test-auv2-gui.sh
+```
+
 For installer:
 
 ```bash

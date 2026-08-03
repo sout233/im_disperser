@@ -40,6 +40,26 @@
     transition: shadow 233ms;
 }
 
+/* Keep the hover appearance stable while the knob owns the pointer capture. Baseview/Vizia can
+ * temporarily move the hover target during a drag, so relying on :hover alone makes the outer
+ * highlight flicker. The controller removes this class on MouseUp and lets the normal hover rule
+ * take over again. */
+.knob.dragging,
+.knob.dragging:hover {
+    scale: 95%;
+    shadow:
+        4px 4px 24px 0px rgb(80 123 80 / 20%),
+        4px 4px 24px 0px white;
+    transition: scale 233ms;
+    transition: shadow 233ms;
+}
+
+.knob-macos {
+    height: 80px;
+    width: 80px;
+    corner-radius: 48px;
+}
+
 .knob-cont {
     /*background-color: red;*/
     height: auto;
@@ -182,4 +202,40 @@
     translate: 0px -30px;
     alignment: top-center;
     background-color: palegreen;
+}
+
+.param-value-label-macos {
+    font-size: 24px;
+    font-weight: normal;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    /* Position the fixed 100px readout around the current knob's center. */
+    left: 50%;
+    top: 0px;
+    translate: -50px -62px;
+    alignment: top-left;
+    height: auto;
+
+    /* Static glass treatment: translucent tint, bright rim, and a soft fixed shadow. */
+    corner-radius: 10px;
+    border-width: 1px;
+    border-color: rgb(255 255 255 / 78%);
+    background-color: rgb(218 255 231 / 72%);
+    shadow: 0px 5px 16px 0px rgb(25 90 48 / 22%);
+}
+
+.params-label-macos {
+    background-color: transparent;
+    color: black;
+    transition: background-color 233ms;
+    transition: color 233ms;
+}
+
+.params-label-macos:hover {
+    background-color: transparent;
+    color: black;
+    transition: background-color 233ms;
+    transition: color 233ms;
 }

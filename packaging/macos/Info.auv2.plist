@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleExecutable</key>
+	<string>IM_DISPERSER</string>
+	<key>CFBundleIdentifier</key>
+	<string>top.soout.godiedsp.im-disperser.au</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>IM_DISPERSER</string>
+	<key>CFBundlePackageType</key>
+	<string>BNDL</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleSupportedPlatforms</key>
+	<array>
+		<string>MacOSX</string>
+	</array>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.13</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>CFBundleShortVersionString</key>
+	<string>0.1.4</string>
+	<key>CFBundleVersion</key>
+	<string>0.1.4</string>
+	<key>AudioComponents</key>
+	<array>
+		<dict>
+			<key>description</key>
+			<string>Phase Disperser Effect</string>
+			<key>factoryFunction</key>
+			<string>GetPluginFactoryAUV2</string>
+			<key>manufacturer</key>
+			<string>SOUT</string>
+			<key>name</key>
+			<string>SOUT: IM_DISPERSER</string>
+			<key>resourceUsage</key>
+			<dict>
+				<key>network.client</key>
+				<true/>
+				<key>temporary-exception.files.all.read-write</key>
+				<true/>
+			</dict>
+			<key>sandboxSafe</key>
+			<true/>
+			<key>subtype</key>
+			<string>IMDS</string>
+			<key>tags</key>
+			<array>
+				<string>Effects</string>
+				<string>Modulation</string>
+				<string>Phaser</string>
+			</array>
+			<key>type</key>
+			<string>aufx</string>
+			<key>version</key>
+			<integer>65540</integer>
+		</dict>
+	</array>
+</dict>
+</plist>

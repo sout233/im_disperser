@@ -1,15 +1,15 @@
 use atomic_float::AtomicF32;
 use nih_plug::prelude::Editor;
 use nih_plug::util;
-use std::sync::Arc;
 use std::sync::atomic::Ordering;
+use std::sync::Arc;
 use vizia_plug::vizia::prelude::*;
-use vizia_plug::{ViziaState, ViziaTheming, create_vizia_editor};
+use vizia_plug::{create_vizia_editor, ViziaState, ViziaTheming};
 
-use crate::DisperserParams;
 use crate::widgets::omg_peak_meter::OmgPeakMeter;
 use crate::widgets::params_knob::ParamKnob;
 use crate::widgets::waveform_view::WaveformView;
+use crate::DisperserParams;
 
 // pub const NOTO_SANS: &str = "Noto Sans";
 
@@ -134,24 +134,51 @@ pub(crate) fn create(
 
                     HStack::new(cx, |cx| {
                         VStack::new(cx, |cx| {
-                            ParamKnob::new(cx, Data::params, |params| &params.amount, true)
-                                .class("knob");
-                            Label::new(cx, "AMOUNT").class("params-label");
+                            let amount_knob =
+                                ParamKnob::new(cx, Data::params, |params| &params.amount, true)
+                                    .class("knob");
+                            #[cfg(target_os = "macos")]
+                            let amount_knob = amount_knob.class("knob-macos");
+                            drop(amount_knob);
+
+                            let amount_label = Label::new(cx, "AMOUNT").class("params-label");
+                            #[cfg(target_os = "macos")]
+                            let amount_label =
+                                amount_label.class("params-label-macos").hoverable(false);
+                            drop(amount_label);
                         })
                         .class("knob-cont");
 
                         VStack::new(cx, |cx| {
-                            ParamKnob::new(cx, Data::params, |params| &params.spread, true)
-                                .class("knob");
-                            Label::new(cx, "SPREAD").class("params-label");
+                            let spread_knob =
+                                ParamKnob::new(cx, Data::params, |params| &params.spread, true)
+                                    .class("knob");
+                            #[cfg(target_os = "macos")]
+                            let spread_knob = spread_knob.class("knob-macos");
+                            drop(spread_knob);
+
+                            let spread_label = Label::new(cx, "SPREAD").class("params-label");
+                            #[cfg(target_os = "macos")]
+                            let spread_label =
+                                spread_label.class("params-label-macos").hoverable(false);
+                            drop(spread_label);
                         })
                         // genshin impact is the worst game in the world
                         .class("knob-cont");
 
                         VStack::new(cx, |cx| {
-                            ParamKnob::new(cx, Data::params, |params| &params.frequency, true)
-                                .class("knob");
-                            Label::new(cx, "FREQUENCY").class("params-label");
+                            let frequency_knob =
+                                ParamKnob::new(cx, Data::params, |params| &params.frequency, true)
+                                    .class("knob");
+                            #[cfg(target_os = "macos")]
+                            let frequency_knob = frequency_knob.class("knob-macos");
+                            drop(frequency_knob);
+
+                            let frequency_label = Label::new(cx, "FREQUENCY").class("params-label");
+                            #[cfg(target_os = "macos")]
+                            let frequency_label =
+                                frequency_label.class("params-label-macos").hoverable(false);
+                            drop(frequency_label);
                         })
                         .class("knob-cont");
                     })
